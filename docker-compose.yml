@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    shm_size: '2gb'
+    environment:
+      - DB_PATH=/data/queue.db
+      - MESSAGE_DELAY=10
+      - MAX_RETRIES=3
+      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+      - DEBUG=puppeteer:*
+    volumes:
+      - ./uploads:/app/uploads
+      - ./db:/data
+      - waha_data:/app/.wwebjs_auth
+
+volumes:
+  waha_data:
+  db_data:

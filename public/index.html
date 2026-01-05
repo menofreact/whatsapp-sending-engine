@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WAHA PDF Sender</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-6">
+
+    <div class="max-w-6xl mx-auto space-y-6">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow">
+            <h1 class="text-2xl font-bold text-gray-800">WAHA PDF Sender</h1>
+            <div id="connectionStatus" class="flex items-center space-x-2">
+                <span class="w-3 h-3 bg-red-500 rounded-full" id="statusDot"></span>
+                <span class="text-gray-600" id="statusText">Disconnected</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <!-- Left Column: Connection & Upload -->
+            <div class="space-y-6">
+
+                <!-- Connection Panel -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-xl font-semibold mb-4">1. WhatsApp Connection</h2>
+                    <button id="connectBtn"
+                        class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition">
+                        Connect WhatsApp
+                    </button>
+                    <!-- QR Code Section -->
+                    <div id="qrContainer" class="text-center hidden">
+                        <img id="qrImage" src="" alt="QR Code" class="mx-auto border border-gray-300 rounded mb-2" />
+                        <!-- <canvas id="qrCanvas" class="mx-auto border border-gray-300 rounded"></canvas> -->
+                        <p id="connectMsg" class="text-center text-sm text-gray-500 mt-2 hidden">Waiting for scan...</p>
+                    </div>
+                </div>
+
+                <!-- Template Panel -->
+                <div class="bg-white p-6 rounded-lg shadow opacity-50 pointer-events-none" id="templatePanel">
+                    <h2 class="text-xl font-semibold mb-2">2. Message Template</h2>
+                    <p class="text-xs text-gray-500 mb-2">Variables: {{name}}, {{mobile}}</p>
+                    <textarea id="messageTemplate" rows="4" class="w-full border rounded p-2 text-sm"
+                        placeholder="Hello {{name}}, please find attached..."></textarea>
+                    <button id="saveTemplateBtn"
+                        class="mt-2 w-full bg-blue-500 text-white py-1 rounded text-sm hover:bg-blue-600">Apply to
+                        Pending Queue</button>
+                </div>
+
+                <!-- Upload Panel -->
+                <div class="bg-white p-6 rounded-lg shadow opacity-50 pointer-events-none" id="uploadPanel">
+                    <h2 class="text-xl font-semibold mb-4">3. Bulk Upload PDFs</h2>
+                    <div class="border-2 border-dashed border-gray-300 rounded p-6 text-center hover:bg-gray-50 transition cursor-pointer"
+                        onclick="document.getElementById('fileInput').click()">
+                        <p class="text-gray-600">Click to upload PDFs</p>
+                        <input type="file" id="fileInput" multiple accept="application/pdf" class="hidden">
+                    </div>
+                    <div id="uploadProgress" class="hidden mt-4">
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                        </div>
+                        <p class="text-xs text-center mt-1">Uploading...</p>
+                    </div>
+
+                    <div class="mt-8 border-t pt-4">
+                        <h3 class="text-lg font-medium mb-3">Manual Entry</h3>
+                        <div class="space-y-3">
+                            <input type="text" id="manualName" placeholder="Recipient Name"
+                                class="w-full border rounded p-2 text-sm">
+                            <input type="text" id="manualMobile" placeholder="Mobile (e.g. 91999...)"
+                                class="w-full border rounded p-2 text-sm">
+                            <input type="file" id="manualFile" accept="application/pdf"
+                                class="w-full text-xs text-gray-500">
+                            <button id="manualAddBtn"
+                                class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded text-sm transition">
+                                Add to Queue
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Queue -->
+            <div class="md:col-span-2">
+                <div class="bg-white p-6 rounded-lg shadow min-h-screen">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold">4. Sending Queue</h2>
+                        <div class="space-x-2">
+                            <button id="startQueueBtn"
+                                class="bg-indigo-500 text-white px-4 py-1 rounded hover:bg-indigo-600 disabled:opacity-50">Start
+                                Queue</button>
+                            <button id="pauseQueueBtn"
+                                class="bg-yellow-500 text-white px-4 py-1 rounded hover:bg-yellow-600">Pause</button>
+                            <button id="clearCompletedBtn" class="text-gray-500 hover:text-gray-700 text-sm">Refresh
+                                List</button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2 text-left">ID</th>
+                                    <th class="px-4 py-2 text-left">File</th>
+                                    <th class="px-4 py-2 text-left">Name (Edit)</th>
+                                    <th class="px-4 py-2 text-left">Mobile (Edit)</th>
+                                    <th class="px-4 py-2 text-left">Status</th>
+                                    <th class="px-4 py-2 text-left">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="queueTableBody" class="divide-y divide-gray-100">
+                                <!-- Rows will be injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

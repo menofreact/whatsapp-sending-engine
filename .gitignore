@@ -1,0 +1,32 @@
+# WhatsApp Engine Privacy & Security
+.wwebjs_auth/
+.waha/
+.wwebjs_cache/
+.waha-profile/
+db/
+uploads/
+*.db
+*.log
+logs.txt
+logs_utf8.txt
+debug_logs.txt
+puppeteer_debug.txt
+puppeteer_debug_full.txt
+puppeteer_error_stack.txt
+final_check.txt
+test_launch.js
+
+# Dependencies
+node_modules/
+client/node_modules/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Build Artifacts
+# We keep the 'public/' folder as it contains the pre-built UI
+# but if it was in the client/dist, we'd ignore the source.
+# The user wants to "skip web app functionality" source code, so we delete client/ later.
