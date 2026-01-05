@@ -1,81 +1,76 @@
-# WAHAsender - Dockerized WhatsApp PDF Sender
+# WhatsApp Sending Engine 🚀
 
-A simple, robust, Dockerized web application to send WhatsApp messages with PDF attachments using WAHA (WhatsApp HTTP API).
-
-## Features
-- **Dockerized**: Runs entirely in containers. No local Node.js required.
-- **QR Connection**: Scan QR code from the web dashboard to connect.
-- **PDF Parsing**: Automatically extracts Name and Mobile Number from uploaded PDFs.
-- **Queue System**: FIFO queue with automatic retries and delay control.
-- **Persistent Data**: Uses SQLite and Docker volumes to save session and queue history.
-
-## Prerequisites
-- **Local**: Docker & Docker Compose installed.
-- **VPS**: Ubuntu/Debian server.
-
-## Quick Start (Local)
-
-1. Open a terminal in this folder.
-2. Run the start command:
-   ```bash
-   docker-compose up -d
-   ```
-3. Open your browser to:
-   [http://localhost:3000](http://localhost:3000)
-
-## Deploy to VPS (Easy Mode)
-
-1. **Package the App**:
-   Run the PowerShell script to create a zip file:
-   ```powershell
-   ./package_for_vps.ps1
-   ```
-   This creates `WAHAsender_VPS.zip`.
-
-2. **Upload to VPS**:
-   Use SCP or FileZilla to upload `WAHAsender_VPS.zip` to your server.
-
-3. **Install & Run on VPS**:
-   SSH into your VPS and run:
-   ```bash
-   # Install unzip if missing
-   sudo apt install unzip -y
-   
-   # Unzip
-   unzip WAHAsender_VPS.zip -d wahasender
-   cd wahasender
-   
-   # Run Setup Script (Installs Docker + Starts App)
-   bash vps_setup.sh
-   ```
-
-4. **Access**:
-   Open `http://YOUR_VPS_IP:3000`
+A high-performance, standalone WhatsApp integration engine designed for developers. This engine provides a stable REST API to send text and PDF messages using an integrated `whatsapp-web.js` backend, eliminating the need for expensive third-party APIs.
 
 ---
 
-## How to Use
+## 🌟 Key Features
+- **Standalone Engine**: No external dependencies like WAHA required; the engine is fully self-contained.
+- **Dockerized Stability**: Runs in a optimized Debian-based container with pre-configured Chromium and shared memory optimizations.
+- **Web QR Interface**: Includes a lightweight, pre-built web dashboard to link your WhatsApp account via QR code.
+- **RESTful API**: Easily integrate with other projects using standard POST/GET endpoints.
+- **Persistent Sessions**: Securely saves your WhatsApp session across restarts using Docker volumes.
+- **PDF Extraction**: Built-in support for processing and sending PDF attachments.
 
-1. **Connect WhatsApp**:
-   - On the dashboard, click "Connect WhatsApp".
-   - Wait for the QR code to appear.
-   - Scan it with your phone (WhatsApp -> Linked Devices).
-   - Status should change to "Connected".
+---
 
-2. **Upload PDFs**:
-   - Drag & drop or select PDF files.
-   - The system will try to extract Name and Mobile.
-   - **Verify** the extracted data in the table. Edit if necessary.
+## 🛠️ Tech Stack
+- **Engine**: [whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js)
+- **Runtime**: Node.js 18 (Bullseye)
+- **Browser**: Headless Chromium
+- **Framework**: Express.js
+- **Database**: SQLite (for queue management)
+- **Container**: Docker & Docker Compose
 
-3. **Set Message**:
-   - Enter your message template (e.g., "Hi {{name}}...").
-   - Click "Apply to Pending Queue".
+---
 
-4. **Start Sending**:
-   - Click "Start Queue".
-   - Watch the status update in real-time.
+## 🚀 Quick Start
 
-## Configuration (Advanced)
-Edit `docker-compose.yml` environment variables:
-- `MESSAGE_DELAY`: Time to wait between messages (seconds). Default: 10.
-- `MAX_RETRIES`: Number of times to retry failed messages. Default: 3.
+### 1. Clone the Repository
+```bash
+git clone https://github.com/menofreact/whatsapp-sending-engine.git
+cd whatsapp-sending-engine
+```
+
+### 2. Deploy with Docker
+```bash
+docker-compose up -d --build
+```
+
+### 3. Connect Your Account
+Open your browser and navigate to `http://localhost:3000`. Wait for the QR code to appear, scan it with your phone, and you're ready to send!
+
+---
+
+## 🔌 API Reference
+
+### Get Status
+`GET /api/status` - Returns the current connection status of the WhatsApp engine.
+
+### Get QR Code
+`GET /api/qr` - Returns the current QR code (base64) for authentication.
+
+### Send Direct Message
+`POST /api/send/direct`
+```json
+{
+  "mobile": "919998887776",
+  "message": "Hello from the Engine!",
+  "pdf_path": "optional_path_to_pdf"
+}
+```
+
+---
+
+## 🛡️ Security & Privacy
+This project is designed with privacy in mind. The `.gitignore` is strictly configured to ensure that **no session data, databases, or sensitive user information** is ever committed to the repository.
+
+---
+
+## 👨‍💻 Author
+**Mohammed Zareef Raichur**
+
+---
+
+## 📄 License
+MIT License. Feel free to use this engine in your own commercial or private projects.
