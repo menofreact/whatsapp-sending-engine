@@ -10,7 +10,9 @@ A high-performance, standalone WhatsApp integration engine designed for develope
 - **Web QR Interface**: Includes a lightweight, pre-built web dashboard to link your WhatsApp account via QR code.
 - **RESTful API**: Easily integrate with other projects using standard POST/GET endpoints.
 - **Persistent Sessions**: Securely saves your WhatsApp session across restarts using Docker volumes.
-- **PDF Extraction**: Built-in support for processing and sending PDF attachments.
+- **PDF Extraction**: Built-in support for auto-extracting name and mobile from PDFs.
+- **Multi-User Support**: Admin panel for managing multiple users.
+- **VPS Optimized**: Resource limits, health checks, and proper signal handling.
 
 ---
 
@@ -24,7 +26,7 @@ A high-performance, standalone WhatsApp integration engine designed for develope
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start (VPS Deployment)
 
 ### 1. Clone the Repository
 ```bash
@@ -32,38 +34,98 @@ git clone https://github.com/menofreact/whatsapp-sending-engine.git
 cd whatsapp-sending-engine
 ```
 
-### 2. Deploy with Docker
+### 2. Configure Environment
+```bash
+cp .env.example .env
+# Edit .env and set a secure JWT_SECRET
+nano .env
+```
+
+### 3. Deploy with Docker
 ```bash
 docker-compose up -d --build
 ```
 
-### 3. Connect Your Account
-Open your browser and navigate to `http://localhost:3000`. Wait for the QR code to appear, scan it with your phone, and you're ready to send!
+### 4. Connect Your Account
+Open your browser and navigate to `http://your-vps-ip:3000`. 
+- Login with `admin` / `admin123` (change password after first login)
+- Wait for the QR code to appear
+- Scan it with your phone
+
+---
+
+## 📦 VPS Requirements
+- **OS**: Ubuntu 20.04+ / Debian 11+
+- **RAM**: Minimum 1GB, Recommended 2GB
+- **Storage**: 5GB+ free space
+- **Docker**: Docker Engine 20.10+ and Docker Compose v2
+
+### Resource Limits (Configurable in docker-compose.yml)
+- Memory: 2GB max, 512MB reserved
+- CPU: 2 cores max, 0.5 cores reserved
 
 ---
 
 ## 🔌 API Reference
 
-### Get Status
-`GET /api/status` - Returns the current connection status of the WhatsApp engine.
+All API endpoints require JWT authentication. Include the token in the Authorization header:
+```
+Authorization: Bearer <your_token>
+```
 
-### Get QR Code
-`GET /api/qr` - Returns the current QR code (base64) for authentication.
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/login` | Login and get JWT token |
 
-### Send Direct Message
-`POST /api/send/direct`
-```json
-{
-  "mobile": "919998887776",
-  "message": "Hello from the Engine!",
-  "pdf_path": "optional_path_to_pdf"
-}
+### WhatsApp
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/status` | Get connection status |
+| GET | `/api/qr` | Get QR code (base64) |
+| POST | `/api/start` | Initialize WhatsApp session |
+| POST | `/api/restart` | Restart WhatsApp session |
+| POST | `/api/logout` | Disconnect WhatsApp |
+
+### Messaging
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/send/direct` | Send direct message with PDF |
+| POST | `/api/upload` | Bulk upload PDFs to queue |
+| POST | `/api/pdf/preview` | Extract name/mobile from PDF |
+| GET | `/api/queue` | Get pending queue items |
+| POST | `/api/queue/start` | Start processing queue |
+| POST | `/api/queue/update` | Update queue item |
+| DELETE | `/api/queue/:id` | Delete queue item |
+
+---
+
+## 🐳 Docker Commands
+
+```bash
+# Start the engine
+docker-compose up -d
+
+# View logs
+docker-compose logs -f wahasender
+
+# Restart
+docker-compose restart
+
+# Stop
+docker-compose down
+
+# Rebuild after code changes
+docker-compose up -d --build
 ```
 
 ---
 
 ## 🛡️ Security & Privacy
-This project is designed with privacy in mind. The `.gitignore` is strictly configured to ensure that **no session data, databases, or sensitive user information** is ever committed to the repository.
+- JWT-based authentication
+- Non-root Docker container
+- Session data stored in Docker volumes (not in repo)
+- `.gitignore` configured to exclude all sensitive data
 
 ---
 

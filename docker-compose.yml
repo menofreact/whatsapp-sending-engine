@@ -1,24 +1,43 @@
 version: '3.8'
 
 services:
-  app:
+  wahasender:
     build: .
+    container_name: wahasender
     restart: unless-stopped
     ports:
       - "3000:3000"
-    shm_size: '2gb'
+    # Shared memory for Chromium
+    shm_size: '1gb'
     environment:
-      - DB_PATH=/data/queue.db
-      - MESSAGE_DELAY=10
-      - MAX_RETRIES=3
+      - NODE_ENV=production
+      - PORT=3000
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-key-change-in-production}
       - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
       - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-      - DEBUG=puppeteer:*
     volumes:
+      # Persist uploads
       - ./uploads:/app/uploads
-      - ./db:/data
-      - waha_data:/app/.wwebjs_auth
+      # Persist database
+      - ./db:/app/db
+      # Persist WhatsApp session (important!)
+      - whatsapp_session:/app/.wwebjs_auth
+    # Resource limits for VPS
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
-  waha_data:
-  db_data:
+  whatsapp_session:
+    driver: local

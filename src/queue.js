@@ -1,5 +1,5 @@
 const db = require('./db');
-const waha = require('./waha');
+const waha = require('./whatsapp');
 const path = require('path');
 
 const MAX_RETRIES = parseInt(process.env.MAX_RETRIES || '3');

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            color: #333;
+        }
+
+        h1 {
+            color: #2563eb;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #1e40af;
+            margin-top: 30px;
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+            border: 1px solid #e5e7eb;
+        }
+
+        code {
+            background: #f3f4f6;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #dc2626;
+        }
+
+        .note {
+            background: #eff6ff;
+            border-left: 4px solid #2563eb;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th,
+        td {
+            border: 1px solid #e5e7eb;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background: #f9fafb;
+        }
+
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 0.8em;
+            color: #6b7280;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>WhatsApp Sender System Guide <span
+            style="font-size:0.6em; background:#dbeafe; color:#1e40af; padding:4px 8px; border-radius:4px; vertical-align:middle;">v2.7</span>
+    </h1>
+
+    <p>This guide explains how to use your new WhatsApp Automation System to send automated lab reports and messages.
+    </p>
+
+    <h2>1. Connecting Your Account</h2>
+    <div class="note">
+        <strong>Note:</strong> You can use any WhatsApp (Personal) or WhatsApp Business account.
+    </div>
+    <ol>
+        <li>Open the application.</li>
+        <li>Look at the <strong>Connection</strong> widget on the left.</li>
+        <li>If you see <strong>"Initialize Engine"</strong>, click it and wait for the "Booting..." spinner.</li>
+        <li>Scan the QR Code using <strong>WhatsApp > Linked Devices</strong> on your phone.</li>
+        <li>Status will turn <strong style="color:#10b981;">ENGINE ACTIVE</strong>.</li>
+    </ol>
+    <!-- We reference the images by partial name matching or strict name if we know it. I will use the strict names I copied. -->
+    <img src="dashboard_connected_1767685862694.png" alt="Dashboard">
+
+    <h2>2. Sending a Single Report</h2>
+    <p>Use the "Direct Message" form for quick sends.</p>
+    <ul>
+        <li><strong>Recipient Name:</strong> Optional (Auto-extracted from PDF if skipped).</li>
+        <li><strong>Mobile Number:</strong> Required (e.g., <code>919876543210</code>).</li>
+        <li><strong>Message:</strong> Default template is pre-filled.</li>
+        <li><strong>Attachment:</strong> Upload your PDF report.</li>
+    </ul>
+
+    <h2>3. Bulk Dispatch</h2>
+    <p>Send hundreds of reports at once.</p>
+    <ol>
+        <li>Scroll to <strong>BULK DISPATCH</strong>.</li>
+        <li>Upload multiple PDF files.</li>
+        <li>Review the <strong>Staging Area</strong> table.</li>
+        <li>Click <strong>START BULK DISPATCH</strong> to begin.</li>
+    </ol>
+    <img src="bulk_staging_area_1767685895304.png" alt="Staging Area">
+
+    <h2>4. Reports & History</h2>
+    <p>Track all delivery statuses in the <strong>Reports</strong> tab.</p>
+    <table>
+        <tr>
+            <th>Status</th>
+            <th>Meaning</th>
+        </tr>
+        <tr>
+            <td style="color:#10b981; font-weight:bold;">Completed</td>
+            <td>Delivered successfully</td>
+        </tr>
+        <tr>
+            <td style="color:#ef4444; font-weight:bold;">Failed</td>
+            <td>Check error message (e.g., Invalid Number)</td>
+        </tr>
+    </table>
+    <img src="reports_tab_1767685925586.png" alt="Reports">
+
+    <div class="footer">
+        Generated for RIMS Hospital Raichur • System v2.7
+    </div>
+</body>
+
+</html>

@@ -1,67 +1,73 @@
-# Standalone WhatsApp Engine
+# Build Stage for Frontend
+FROM node:18-alpine AS build-stage
+WORKDIR /app/client
+COPY client/package*.json ./
+RUN npm ci
+COPY client/ ./
+RUN npm run build
+
+# Final Stage - Optimized for VPS
 FROM node:18-bullseye-slim
 WORKDIR /app
 
-# Install dependencies for Puppeteer/Chromium
-RUN apt-get update && apt-get install -y \
+# Install minimal dependencies for Puppeteer/Chromium
+RUN apt-get update && apt-get install -y --no-install-recommends \
     chromium \
     fonts-liberation \
-    libappindicator3-1 \
-    libasound2 \
     libatk-bridge2.0-0 \
     libatk1.0-0 \
-    libc6 \
-    libcairo2 \
     libcups2 \
-    libdbus-1-3 \
-    libexpat1 \
-    libfontconfig1 \
+    libdrm2 \
     libgbm1 \
-    libgcc1 \
-    libgconf-2-4 \
-    libgdk-pixbuf2.0-0 \
-    libglib2.0-0 \
     libgtk-3-0 \
     libnspr4 \
     libnss3 \
-    libpango-1.0-0 \
-    libpangocairo-1.0-0 \
-    libstdc++6 \
-    libx11-6 \
-    libx11-xcb1 \
-    libxcb1 \
     libxcomposite1 \
-    libxcursor1 \
     libxdamage1 \
-    libxext6 \
     libxfixes3 \
-    libxi6 \
+    libxkbcommon0 \
     libxrandr2 \
-    libxrender1 \
-    libxss1 \
-    libxtst6 \
-    libxshmfence1 \
-    ca-certificates \
-    fonts-liberation \
-    libnss3 \
-    lsb-release \
     xdg-utils \
-    wget \
+    ca-certificates \
+    dumb-init \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Set environment variables for Puppeteer
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
+    NODE_ENV=production
+
+# Create non-root user for security
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
+# Install gosu for easy step-down from root
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gosu \
     && rm -rf /var/lib/apt/lists/*
 
-# Backend dependencies
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+# Backend dependencies - use npm ci for faster, reproducible builds
 COPY package*.json ./
-RUN npm install
+RUN npm ci --only=production && npm cache clean --force
 
 # Copy backend source
 COPY src ./src
 
-# Copy pre-built frontend
-COPY public ./public
+# Copy built frontend from build-stage
+COPY --from=build-stage /app/client/dist ./public
 
-# Create uploads directory
-RUN mkdir -p uploads
+# Copy entrypoint script
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Create directories with proper permissions
+RUN mkdir -p uploads db .wwebjs_auth \
+    && chown -R appuser:appuser /app
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:3000/api/status', (r) => process.exit(r.statusCode === 200 || r.statusCode === 401 ? 0 : 1))"
 
 EXPOSE 3000
+ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["node", "src/server.js"]
